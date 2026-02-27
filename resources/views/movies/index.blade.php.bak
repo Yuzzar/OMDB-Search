@@ -1,0 +1,246 @@
+@extends('layouts.app')
+
+@section('title', __('app.movies'))
+
+@section('content')
+<div class="max-w-screen-xl mx-auto px-4 sm:px-6 py-6">
+
+    {{-- ── Search Bar ── --}}
+    <form action="{{ route('movies.index') }}" method="GET" id="search-form"
+          class="bg-[#12121a] border border-white/5 rounded-2xl p-4 sm:p-5 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1fr_160px_140px_auto] gap-3 items-end">
+
+            {{-- Query --}}
+            <div>
+                <label class="block text-[10px] font-semibold uppercase tracking-widest text-gray-500 mb-1.5">{{ __('app.search_movies') }}</label>
+                <div class="relative">
+                    <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-600 text-sm"><i class="fas fa-search"></i></span>
+                    <input type="text" name="query"
+                           value="{{ $query }}"
+                           placeholder="{{ __('app.search_placeholder') }}"
+                           class="w-full bg-white/[0.03] border border-white/7 text-gray-100 placeholder-gray-600 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-[#e94560] focus:ring-2 focus:ring-[#e94560]/20 transition-all">
+                </div>
+            </div>
+
+            {{-- Type --}}
+            <div>
+                <label class="block text-[10px] font-semibold uppercase tracking-widest text-gray-500 mb-1.5">{{ __('app.filter_type') }}</label>
+                <select name="type"
+                        class="w-full bg-white/[0.03] border border-white/7 text-gray-100 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[#e94560] focus:ring-2 focus:ring-[#e94560]/20 transition-all appearance-none cursor-pointer">
+                    <option value="">{{ __('app.all_types') }}</option>
+                    <option value="movie"   {{ $type === 'movie'   ? 'selected' : '' }}>{{ __('app.movie') }}</option>
+                    <option value="series"  {{ $type === 'series'  ? 'selected' : '' }}>{{ __('app.series') }}</option>
+                    <option value="episode" {{ $type === 'episode' ? 'selected' : '' }}>{{ __('app.episode') }}</option>
+                </select>
+            </div>
+
+            {{-- Year --}}
+            <div>
+                <label class="block text-[10px] font-semibold uppercase tracking-widest text-gray-500 mb-1.5">{{ __('app.filter_year') }}</label>
+                <input type="number" name="year"
+                       value="{{ $year }}"
+                       placeholder="{{ date('Y') }}"
+                       min="1900" max="{{ date('Y') }}"
+                       class="w-full bg-white/[0.03] border border-white/7 text-gray-100 placeholder-gray-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#e94560] focus:ring-2 focus:ring-[#e94560]/20 transition-all">
+            </div>
+
+            {{-- Buttons --}}
+            <div class="flex gap-2">
+                <button type="submit"
+                        class="flex-1 bg-gradient-to-r from-[#e94560] to-[#c73652] text-white font-semibold rounded-xl px-5 py-2.5 text-sm
+                               hover:brightness-110 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#e94560]/25 transition-all duration-200 flex items-center justify-center gap-2">
+                    <i class="fas fa-search"></i>{{ __('app.search') }}
+                </button>
+                @if(!$isDefault || $type || $year)
+                <a href="{{ route('movies.index') }}"
+                   class="flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-gray-200 rounded-xl px-3 py-2.5 text-sm transition-all"
+                   title="Clear filters">
+                    <i class="fas fa-times"></i>
+                </a>
+                @endif
+            </div>
+        </div>
+    </form>
+
+    {{-- ── Section Heading ── --}}
+    @if(!isset($error) || !$error)
+    <div class="flex items-center gap-3 mb-6">
+        <span class="w-1 h-6 bg-gradient-to-b from-[#e94560] to-[#c73652] rounded-full"></span>
+        <h2 class="text-lg font-bold text-gray-100">
+            @if($isDefault && !$query)
+                {{ __('app.latest_movies') }}
+            @else
+                {{ __('app.results_found') }}
+            @endif
+        </h2>        @if($isDefault && !$query && $defaultYear)
+            <span class="text-xs font-semibold bg-white/5 text-gray-400 border border-white/10 px-2.5 py-0.5 rounded-full">
+                {{ $defaultYear }}
+            </span>
+        @endif        @if(isset($total) && $total > 0)
+            <span class="ml-1 text-xs font-semibold bg-[#e94560]/15 text-[#e94560] border border-[#e94560]/25 px-2.5 py-0.5 rounded-full">
+                {{ number_format($total) }}
+            </span>
+        @endif
+    </div>
+    @endif
+
+    {{-- ── Error ── --}}
+    @if(isset($error) && $error)
+        <div class="flex flex-col items-center py-20 text-center">
+            <div class="w-20 h-20 bg-yellow-500/10 text-yellow-400 text-4xl rounded-full flex items-center justify-center mb-4">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-200 mb-2">Oops!</h3>
+            <p class="text-gray-500 max-w-xs">{{ $error }}</p>
+        </div>
+
+    {{-- ── Empty ── --}}
+    @elseif(empty($movies))
+        <div class="flex flex-col items-center py-20 text-center">
+            <div class="w-20 h-20 bg-[#e94560]/10 text-[#e94560] text-4xl rounded-full flex items-center justify-center mb-4">
+                <i class="fas fa-film"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-200 mb-2">{{ __('app.no_movies_found') }}</h3>
+            <p class="text-gray-500 max-w-xs">{{ __('app.search_prompt') }}</p>
+        </div>
+
+    {{-- ── Movies Grid ── --}}
+    @else
+        <div id="movies-grid"
+             class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            @foreach($movies as $movie)
+                @include('partials.movie-card', ['movie' => $movie])
+            @endforeach
+        </div>
+
+        {{-- Loading Spinner --}}
+        <div id="loading-spinner" class="hidden py-8">
+            <div class="spinner-dots"></div>
+        </div>
+
+        {{-- Sentinel for IntersectionObserver --}}
+        @if(isset($totalPages) && $totalPages > 1)
+            <div id="scroll-sentinel" class="h-1 mt-10"></div>
+        @endif
+    @endif
+
+</div>
+@endsection
+
+@section('scripts')
+<script>
+(function () {
+    var currentPage  = 1;
+    var totalPages   = {{ isset($totalPages) ? (int)$totalPages : 1 }};
+    var searchQuery  = @json($query);
+    var searchType   = @json($type);
+    var searchYear   = @json($year);
+    var defaultYear  = @json($defaultYear ?? null);
+    var defaultTerm  = @json($defaultTerm ?? null);  // server-chosen term for latest movies
+    var isDefault    = {{ $isDefault ? 'true' : 'false' }};
+    var loading      = false;
+    var favUrl      = '{{ route("favorites.store") }}';
+    var unfavBase   = '{{ url("/favorites") }}';
+    var csrf        = '{{ csrf_token() }}';
+
+    /* ── Spinner HTML ── */
+    $('#loading-spinner .spinner-dots').html('<span></span><span></span><span></span>');
+
+    /* ── Fav Toggle ── */
+    $(document).on('click', '.fav-btn', function (e) {
+        e.preventDefault();
+        var btn    = $(this);
+        var imdbId = btn.data('imdb');
+        var isFav  = btn.hasClass('is-favorited');
+
+        if (isFav) {
+            $.ajax({ url: unfavBase + '/' + imdbId, type: 'POST', data: { _method: 'DELETE', _token: csrf },
+                success: function (r) {
+                    btn.removeClass('is-favorited bg-accent text-white shadow-md shadow-accent/30')
+                       .addClass('bg-white/5 text-gray-500 hover:bg-accent/15 hover:text-accent');
+                    btn.find('i').removeClass('fas').addClass('far');
+                    showToast(r.message || '{{ __("app.removed_from_favorites") }}', 'success');
+                },
+                error: function () { showToast('Error', 'error'); }
+            });
+        } else {
+            $.ajax({ url: favUrl, type: 'POST',
+                data: { _token: csrf, imdb_id: imdbId, title: btn.data('title'), year: btn.data('year'), poster: btn.data('poster'), type: btn.data('type') },
+                success: function (r) {
+                    btn.addClass('is-favorited bg-accent text-white shadow-md shadow-accent/30')
+                       .removeClass('bg-white/5 text-gray-500 hover:bg-accent/15 hover:text-accent');
+                    btn.find('i').removeClass('far').addClass('fas');
+                    showToast(r.message || '{{ __("app.added_to_favorites") }}', 'success');
+                },
+                error: function (xhr) {
+                    var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Error';
+                    showToast(msg, 'error');
+                }
+            });
+        }
+    });
+
+    /* ── Build card for AJAX pages ── */
+    function buildCard(m) {
+        var poster  = (m.Poster && m.Poster !== 'N/A') ? m.Poster : '';
+        var isFav   = !!m.is_favorited;
+        var type    = (m.Type || 'movie').toLowerCase();
+        var typeLabel = type.charAt(0).toUpperCase() + type.slice(1);
+        var typeClass = type === 'series'  ? 'bg-blue-500/20 text-blue-300 border-blue-500/30'
+                      : type === 'episode' ? 'bg-purple-500/20 text-purple-300 border-purple-500/30'
+                      : 'bg-pink-500/15 text-pink-300 border-pink-500/30';
+        var favCls  = isFav ? 'is-favorited bg-accent text-white shadow-md shadow-accent/30'
+                            : 'bg-white/5 text-gray-500 hover:bg-accent/15 hover:text-accent';
+        var heart   = isFav ? 'fas' : 'far';
+        var url     = '/movies/' + m.imdbID;
+        var img     = poster
+            ? '<img class="movie-card-img lazy absolute inset-0 w-full h-full object-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="' + poster + '" alt="">'
+            : '<div class="absolute inset-0 bg-[#12121a] flex items-center justify-center text-gray-700 text-5xl"><i class="fas fa-film"></i></div>';
+        return '<div class="movie-card bg-[#16161f] border border-white/5 rounded-xl overflow-hidden flex flex-col group" data-imdb="' + m.imdbID + '">'
+            + '<a href="' + url + '" class="block relative overflow-hidden" style="aspect-ratio:2/3;">'
+            + img
+            + '<div class="absolute bottom-0 inset-x-0 h-1/3 bg-gradient-to-t from-[#16161f] to-transparent pointer-events-none"></div></a>'
+            + '<div class="p-3 flex flex-col gap-1.5 flex-1">'
+            + '<div class="flex items-center justify-between gap-1">'
+            + '<span class="inline-flex items-center text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md border ' + typeClass + '">' + typeLabel + '</span>'
+            + '<button class="fav-btn w-7 h-7 flex items-center justify-center rounded-lg transition-all ' + favCls + '"'
+            + ' data-imdb="' + m.imdbID + '" data-title="' + (m.Title||'').replace(/"/g,'&quot;') + '"'
+            + ' data-year="' + (m.Year||'') + '" data-poster="' + poster + '" data-type="' + type + '">'
+            + '<i class="' + heart + ' fa-heart text-xs"></i></button></div>'
+            + '<a href="' + url + '" class="block"><h3 class="text-sm font-semibold text-gray-100 leading-snug line-clamp-2 group-hover:text-[#e94560] transition-colors">' + (m.Title||'') + '</h3></a>'
+            + '<span class="text-xs text-gray-600">' + (m.Year||'') + '</span>'
+            + '</div></div>';
+    }
+
+    /* ── Load More ── */
+    function loadMore() {
+        if (loading || currentPage >= totalPages) return;
+        loading = true;
+        $('#loading-spinner').removeClass('hidden');
+        // When showing default (latest) movies, pass the server-chosen term+year for consistent pagination
+        var reqQuery = isDefault ? (defaultTerm || '') : searchQuery;
+        var reqYear  = searchYear || (isDefault ? defaultYear : '');
+        $.get('{{ route("movies.load-more") }}', { query: reqQuery, type: searchType, year: reqYear, defaultTerm: defaultTerm, defaultYear: defaultYear, page: currentPage + 1 })
+            .done(function (data) {
+                if (data.success && data.movies && data.movies.length) {
+                    currentPage++;
+                    $.each(data.movies, function (i, m) { $('#movies-grid').append(buildCard(m)); });
+                    initLazyLoad();
+                    if (currentPage >= totalPages) $('#scroll-sentinel').remove();
+                }
+            })
+            .always(function () { loading = false; $('#loading-spinner').addClass('hidden'); });
+    }
+
+    /* ── Infinite Scroll ── */
+    var sentinel = document.getElementById('scroll-sentinel');
+    if (sentinel && totalPages > 1) {
+        new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) { if (e.isIntersecting) loadMore(); });
+        }, { rootMargin: '300px' }).observe(sentinel);
+    }
+
+    initLazyLoad();
+})();
+</script>
+@endsection
