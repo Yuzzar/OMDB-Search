@@ -47,6 +47,7 @@ return [
     'min_chars' => 'Please enter at least 3 characters to search.',
     'search_word_tip' => 'Tip: Use complete words — try “superman” not “superm”',
     'no_results_hint' => 'OMDb searches by title words. Try a complete word (e.g. “superman”) or a different keyword.',
+    'view_details' => 'View Details',
 
     // Movie Detail
     'back' => 'Back',
@@ -55,7 +56,7 @@ return [
     'writer' => 'Writer',
     'actors' => 'Actors',
     'plot' => 'Plot',
-    'language' => 'Language',
+    'film_language' => 'Language',
     'country' => 'Country',
     'awards' => 'Awards',
     'released' => 'Released',

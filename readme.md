@@ -4,6 +4,32 @@ A Laravel 5.8 movie search and favorites application powered by the [OMDb API](h
 
 ---
 
+## Ketentuan & Implementasi
+
+Berikut ini adalah daftar ketentuan teknis test beserta status implementasinya:
+
+| # | Ketentuan | Status |
+|---|---|---|
+| 1 | Halaman Login (username: `aldmic`, password: `123abc123`) | ✅ Implemented |
+| 2 | Halaman List Movie | ✅ Implemented |
+| 3 | Halaman Detail Movie | ✅ Implemented |
+| 4 | Login wajib sebelum akses List / Detail Movie | ✅ `AuthCheckMiddleware` |
+| 5 | Pesan error jika credential salah | ✅ Validation error shown on login |
+| 6 | Pencarian movie berdasarkan judul, tipe, dan tahun | ✅ Search + filter |
+| 7 | Klik movie → tampil halaman detail | ✅ Route `/movies/{imdbId}` |
+| 8 | Tambah Favorite dari halaman List Movie | ✅ Favorite button per card |
+| 9 | Tambah Favorite dari halaman Detail Movie | ✅ Add/Remove button on detail |
+| 10 | Halaman Daftar Favorite tersendiri | ✅ Route `/favorites` |
+| 11 | Hapus Favorite dari halaman Favorites | ✅ Implemented |
+| 12 | Infinite Scroll pada halaman List Movie | ✅ `IntersectionObserver` API |
+| 13 | Lazy Load pada gambar/poster Movie | ✅ `data-src` lazy loading |
+| 14 | Multi Language ID / EN (default EN) | ✅ `LocaleMiddleware` + `lang/` |
+| 15 | Lokalisasi hanya untuk teks statis (bukan data API) | ✅ Semua teks pakai `__('app.xxx')` |
+| 16 | Empty state jika data kosong | ✅ Empty state UI |
+| 17 | README dengan library, arsitektur, dan screenshot | ✅ Dokumen ini |
+
+---
+
 ## Features
 
 - **Login Page** — Secure session-based authentication (credentials: `aldmic` / `123abc123`)
@@ -142,101 +168,56 @@ Open browser at `http://localhost:8000`
 
 ## Deployment
 
-### Railway.app (Recommended — Free)
+### Alibaba Cloud (Docker)
 
-1. Push code to a **private** GitHub repository
-2. Register at [railway.app](https://railway.app)
-3. New Project → Deploy from GitHub repo
-4. Add MySQL plugin: **+ New → Database → MySQL**
-5. Set environment variables in Railway dashboard (APP_KEY, DB_*, OMDB_API_KEY, APP_URL)
-6. Add start command: `php artisan migrate && php artisan serve --host=0.0.0.0 --port=$PORT`
+Aplikasi di-deploy menggunakan Docker di Alibaba Cloud ECS.
 
-### InfinityFree / 000webhost (FTP Upload)
+```bash
+# 1. Clone project ke server
+git clone <repo-url>
+cd <project-folder>
 
-1. Register at [infinityfree.com](https://infinityfree.net)
-2. Upload all files via FTP
-3. Set document root to `/public`
-4. Import MySQL dump via phpMyAdmin
-5. Update `.env` with hosting DB credentials
+# 2. Copy dan isi konfigurasi environment
+cp .env.example .env
+# Edit .env: isi DB_HOST, DB_DATABASE, DB_USERNAME, DB_PASSWORD, OMDB_API_KEY, APP_URL
+
+# 3. Jalankan dengan Docker Compose
+docker-compose up -d --build
+
+# 4. Jalankan migrasi database
+docker-compose exec app php artisan key:generate
+docker-compose exec app php artisan migrate --force
+```
+
+Akses aplikasi melalui IP atau domain server.
 
 ---
 
 ## Screenshots
 
-> *(Add screenshots here)*
+### Login Page
+![Login Page](screenshots/1-login.png)
 
-- Login Page
-- Movie Search List
-- Movie Detail Page
-- Favorites Page
+### Movie List
+![Movie List](screenshots/2-movies-list.png)
+
+### Filter by Type
+![Filter by Type](screenshots/3-filter-type.png)
+
+### Filter by Year
+![Filter by Year](screenshots/4-filter-year.png)
+
+### Movie Detail
+![Movie Detail](screenshots/5-movie-detail.png)
+
+### Movie Detail — Added to Favorites
+![Movie Detail Favorited](screenshots/6-movie-detail-favorited.png)
+
+### Favorites Page
+![Favorites](screenshots/7-favorites.png)
 
 ---
 
 ## Author
 
 Built for **PT. Aldmic Indonesia** Technical Test — February 2026
-
-
-## About Laravel
-
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[British Software Development](https://www.britishsoftware.co)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- [UserInsights](https://userinsights.com)
-- [Fragrantica](https://www.fragrantica.com)
-- [SOFTonSOFA](https://softonsofa.com/)
-- [User10](https://user10.com)
-- [Soumettre.fr](https://soumettre.fr/)
-- [CodeBrisk](https://codebrisk.com)
-- [1Forge](https://1forge.com)
-- [TECPRESSO](https://tecpresso.co.jp/)
-- [Runtime Converter](http://runtimeconverter.com/)
-- [WebL'Agence](https://weblagence.com/)
-- [Invoice Ninja](https://www.invoiceninja.com)
-- [iMi digital](https://www.imi-digital.de/)
-- [Earthlink](https://www.earthlink.ro/)
-- [Steadfast Collective](https://steadfastcollective.com/)
-- [We Are The Robots Inc.](https://watr.mx/)
-- [Understand.io](https://www.understand.io/)
-- [Abdel Elrafa](https://abdelelrafa.com)
-- [Hyper Host](https://hyper.host)
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-source software licensed under the [MIT license](https://opensource.org/licenses/MIT).

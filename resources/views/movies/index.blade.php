@@ -17,7 +17,7 @@
 
                 {{-- ── Text search ── --}}
                 <div>
-                    <label class="filter-label">SEARCH MOVIES</label>
+                    <label class="filter-label">{{ strtoupper(__('app.search_movies')) }}</label>
                     <div class="relative">
                         <span id="search-icon" class="input-icon-left pointer-events-none">
                             <i class="fas fa-search"></i>
@@ -43,7 +43,7 @@
 
                 {{-- ── Custom Type picker ── --}}
                 <div class="relative" id="type-wrapper">
-                    <label class="filter-label">TYPE</label>
+                    <label class="filter-label">{{ strtoupper(__('app.filter_type')) }}</label>
                     <button type="button" id="type-btn"
                         class="filter-input w-full text-left flex items-center justify-between gap-2 cursor-pointer"
                         aria-haspopup="listbox" aria-expanded="false">
@@ -61,7 +61,8 @@
                     {{-- Dropdown panel --}}
                     <ul id="type-menu" class="custom-dropdown hidden" role="listbox">
                         <li class="dropdown-item {{ !$type ? 'active' : '' }}" data-val="" role="option">
-                            {{ __('app.all_types') }}</li>
+                            {{ __('app.all_types') }}
+                        </li>
                         <li class="dropdown-item {{ $type === 'movie' ? 'active' : '' }}" data-val="movie" role="option">
                             <span class="type-dot bg-pink-400"></span>{{ __('app.movie') }}
                         </li>
@@ -73,7 +74,7 @@
 
                 {{-- ── Custom Year picker ── --}}
                 <div class="relative" id="year-wrapper">
-                    <label class="filter-label">YEAR</label>
+                    <label class="filter-label">{{ strtoupper(__('app.filter_year')) }}</label>
                     <button type="button" id="year-btn"
                         class="filter-input w-full text-left flex items-center justify-between gap-2 cursor-pointer"
                         aria-haspopup="listbox" aria-expanded="false">
@@ -97,7 +98,8 @@
                         {{-- Quick picks --}}
                         <div class="px-2 pt-2 pb-2">
                             <p class="text-[10px] text-gray-600 uppercase tracking-wider px-1 mb-1.5">
-                                {{ __('app.quick_pick') }}</p>
+                                {{ __('app.quick_pick') }}
+                            </p>
                             <div id="year-quick" class="grid grid-cols-4 gap-1"></div>
                         </div>
                         {{-- Clear --}}
@@ -200,11 +202,11 @@
                         @endif
                     </h2>
                     <span id="year-badge" class="text-xs font-semibold bg-white/5 text-gray-400 border border-white/10 px-2.5 py-0.5 rounded-full
-                                 {{ $defaultYear ? '' : 'hidden' }}">
+                                     {{ $defaultYear ? '' : 'hidden' }}">
                         {{ $defaultYear ?? '' }}
                     </span>
                     <span id="total-badge" class="text-xs font-semibold bg-[#e94560]/15 text-[#e94560] border border-[#e94560]/25 px-2.5 py-0.5 rounded-full
-                                 {{ (isset($total) && $total > 0) ? '' : 'hidden' }}">
+                                     {{ (isset($total) && $total > 0) ? '' : 'hidden' }}">
                         {{ isset($total) ? number_format($total) : '' }}
                     </span>
                 </div>
@@ -237,7 +239,8 @@
                 <h3 class="text-xl font-bold text-gray-200 mb-2">{{ __('app.no_movies_found') }}</h3>
                 <p id="empty-msg" class="text-gray-500 max-w-xs">{{ __('app.try_different_keyword') }}</p>
                 <p id="empty-word-hint" class="hidden mt-2 text-xs text-blue-400/70 max-w-xs">
-                    {{ __('app.no_results_hint') }}</p>
+                    {{ __('app.no_results_hint') }}
+                </p>
             </div>
 
             {{-- Skeleton grid (shown during AJAX transition) --}}
@@ -305,6 +308,7 @@
                 results: '{{ __("app.results") }}',
                 anyYear: '{{ __("app.any_year") }}',
                 allTypes: '{{ __("app.all_types") }}',
+                viewDetails: '{{ __("app.view_details") }}',
             },
         };
     </script>

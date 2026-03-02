@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Favorite;
 use App\Repositories\Contracts\FavoriteRepositoryInterface;
+use Illuminate\Database\Eloquent\Collection;
 
 class FavoriteRepository implements FavoriteRepositoryInterface
 {
@@ -15,10 +16,7 @@ class FavoriteRepository implements FavoriteRepositoryInterface
         $this->model = $model;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getAll(string $sessionId)
+    public function getAll(string $sessionId): Collection
     {
         return $this->model
             ->where('session_id', $sessionId)
@@ -26,10 +24,7 @@ class FavoriteRepository implements FavoriteRepositoryInterface
             ->get();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function findByImdbId(string $sessionId, string $imdbId)
+    public function findByImdbId(string $sessionId, string $imdbId): ?Favorite
     {
         return $this->model
             ->where('session_id', $sessionId)
@@ -37,24 +32,18 @@ class FavoriteRepository implements FavoriteRepositoryInterface
             ->first();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function add(string $sessionId, array $data)
+    public function add(string $sessionId, array $data): Favorite
     {
         return $this->model->create([
             'session_id' => $sessionId,
-            'imdb_id'    => $data['imdb_id'],
-            'title'      => $data['title'],
-            'year'       => $data['year'],
-            'poster'     => $data['poster'],
-            'type'       => $data['type'] ?? 'movie',
+            'imdb_id' => $data['imdb_id'],
+            'title' => $data['title'],
+            'year' => $data['year'],
+            'poster' => $data['poster'],
+            'type' => $data['type'] ?? 'movie',
         ]);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function remove(string $sessionId, string $imdbId): bool
     {
         return (bool) $this->model
@@ -63,9 +52,6 @@ class FavoriteRepository implements FavoriteRepositoryInterface
             ->delete();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function isFavorited(string $sessionId, string $imdbId): bool
     {
         return $this->model

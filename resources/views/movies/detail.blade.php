@@ -116,7 +116,7 @@
                     'Director' => __('app.director'),
                     'Writer'   => __('app.writer'),
                     'Actors'   => __('app.actors'),
-                    'Language' => __('app.language'),
+                    'Language' => __('app.film_language'),
                     'Country'  => __('app.country'),
                     'Released' => __('app.released'),
                     'Awards'   => __('app.awards'),
@@ -140,41 +140,67 @@
 @section('scripts')
 <script>
 (function () {
-    var csrf      = '{{ csrf_token() }}';
-    var favUrl    = '{{ route("favorites.store") }}';
-    var unfavBase = '{{ url("/favorites") }}';
+    'use strict';
+
+    const csrf      = '{{ csrf_token() }}';
+    const favUrl    = '{{ route("favorites.store") }}';
+    const unfavBase = '{{ url("/favorites") }}';
+    const i18n = {
+        addToFavorites:     '{{ __("app.add_to_favorites") }}',
+        removeFromFavorites:'{{ __("app.remove_from_favorites") }}',
+        added:              '{{ __("app.added_to_favorites") }}',
+        removed:            '{{ __("app.removed_from_favorites") }}',
+    };
 
     $('#fav-btn-detail').on('click', function () {
-        var btn    = $(this);
-        var imdbId = btn.data('imdb');
-        var isFav  = btn.hasClass('bg-[#e94560]') || btn.hasClass('is-favorited');
+        const $btn   = $(this);
+        const imdbId = $btn.data('imdb');
+        const isFav  = $btn.hasClass('bg-[#e94560]') || $btn.hasClass('is-favorited');
+
+        $btn.prop('disabled', true);
 
         if (isFav) {
-            $.ajax({ url: unfavBase + '/' + imdbId, type: 'POST', data: { _method: 'DELETE', _token: csrf },
-                success: function (r) {
-                    btn.removeClass('bg-[#e94560] border-[#e94560] text-white is-favorited')
-                       .addClass('bg-[#e94560]/10 border-[#e94560]/30 text-[#e94560] hover:bg-[#e94560]/20');
-                    btn.find('i').removeClass('fas').addClass('far');
-                    $('#fav-label').text('{{ __("app.add_to_favorites") }}');
-                    showToast(r.message || '{{ __("app.removed_from_favorites") }}', 'success');
-                },
-                error: function () { showToast('Error', 'error'); }
-            });
+            $.ajax({
+                url:  unfavBase + '/' + imdbId,
+                type: 'POST',
+                data: { _method: 'DELETE', _token: csrf },
+            })
+                .done(function (r) {
+                    $btn.removeClass('bg-[#e94560] border-[#e94560] text-white is-favorited')
+                        .addClass('bg-[#e94560]/10 border-[#e94560]/30 text-[#e94560] hover:bg-[#e94560]/20');
+                    $btn.find('i').removeClass('fas').addClass('far');
+                    $('#fav-label').text(i18n.addToFavorites);
+                    showToast(r.message || i18n.removed, 'success');
+                })
+                .fail(function () { showToast('Error', 'error'); })
+                .always(function () { $btn.prop('disabled', false); });
         } else {
-            $.ajax({ url: favUrl, type: 'POST',
-                data: { _token: csrf, imdb_id: imdbId, title: btn.data('title'), year: btn.data('year'), poster: btn.data('poster'), type: btn.data('type') },
-                success: function (r) {
-                    btn.addClass('bg-[#e94560] border-[#e94560] text-white is-favorited')
-                       .removeClass('bg-[#e94560]/10 border-[#e94560]/30 text-[#e94560] hover:bg-[#e94560]/20');
-                    btn.find('i').removeClass('far').addClass('fas');
-                    $('#fav-label').text('{{ __("app.remove_from_favorites") }}');
-                    showToast(r.message || '{{ __("app.added_to_favorites") }}', 'success');
+            $.ajax({
+                url:  favUrl,
+                type: 'POST',
+                data: {
+                    _token:  csrf,
+                    imdb_id: imdbId,
+                    title:   $btn.data('title'),
+                    year:    $btn.data('year'),
+                    poster:  $btn.data('poster'),
+                    type:    $btn.data('type'),
                 },
-                error: function (xhr) {
-                    var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Error';
+            })
+                .done(function (r) {
+                    $btn.addClass('bg-[#e94560] border-[#e94560] text-white is-favorited')
+                        .removeClass('bg-[#e94560]/10 border-[#e94560]/30 text-[#e94560] hover:bg-[#e94560]/20');
+                    $btn.find('i').removeClass('far').addClass('fas');
+                    $('#fav-label').text(i18n.removeFromFavorites);
+                    showToast(r.message || i18n.added, 'success');
+                })
+                .fail(function (xhr) {
+                    const msg = (xhr.responseJSON && xhr.responseJSON.message)
+                        ? xhr.responseJSON.message
+                        : 'Error';
                     showToast(msg, 'error');
-                }
-            });
+                })
+                .always(function () { $btn.prop('disabled', false); });
         }
     });
 })();

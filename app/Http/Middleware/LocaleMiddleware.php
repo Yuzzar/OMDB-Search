@@ -6,26 +6,13 @@ use Closure;
 
 class LocaleMiddleware
 {
-    /**
-     * Available locales.
-     *
-     * @var array
-     */
-    protected $availableLocales = ['en', 'id'];
-
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  Closure  $next
-     * @return mixed
-     */
     public function handle($request, Closure $next)
     {
         $locale = session('locale', config('app.locale', 'en'));
+        $availableLocales = config('app.available_locales', ['en']);
 
-        if (!in_array($locale, $this->availableLocales)) {
-            $locale = 'en';
+        if (!in_array($locale, $availableLocales)) {
+            $locale = config('app.fallback_locale', 'en');
         }
 
         app()->setLocale($locale);

@@ -2,49 +2,18 @@
 
 namespace App\Repositories\Contracts;
 
+use App\Models\Favorite;
+use Illuminate\Database\Eloquent\Collection;
+
 interface FavoriteRepositoryInterface
 {
-    /**
-     * Get all favorites for a session user.
-     *
-     * @param  string $sessionId
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function getAll(string $sessionId);
+    public function getAll(string $sessionId): Collection;
 
-    /**
-     * Find a favorite by session ID and IMDb ID.
-     *
-     * @param  string $sessionId
-     * @param  string $imdbId
-     * @return \App\Models\Favorite|null
-     */
-    public function findByImdbId(string $sessionId, string $imdbId);
+    public function findByImdbId(string $sessionId, string $imdbId): ?Favorite;
 
-    /**
-     * Add a movie to favorites.
-     *
-     * @param  string $sessionId
-     * @param  array  $data
-     * @return \App\Models\Favorite
-     */
-    public function add(string $sessionId, array $data);
+    public function add(string $sessionId, array $data): Favorite;
 
-    /**
-     * Remove a favorite by session ID and IMDb ID.
-     *
-     * @param  string $sessionId
-     * @param  string $imdbId
-     * @return bool
-     */
     public function remove(string $sessionId, string $imdbId): bool;
 
-    /**
-     * Check if a movie is already favorited.
-     *
-     * @param  string $sessionId
-     * @param  string $imdbId
-     * @return bool
-     */
     public function isFavorited(string $sessionId, string $imdbId): bool;
 }

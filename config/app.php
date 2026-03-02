@@ -97,6 +97,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Available Locales
+    |--------------------------------------------------------------------------
+    |
+    | The list of locales supported by the application. This is the single
+    | source of truth used by LocaleMiddleware and the locale switcher route.
+    |
+    */
+
+    'available_locales' => ['en', 'id'],
+
+    /*
+    |--------------------------------------------------------------------------
     | Faker Locale
     |--------------------------------------------------------------------------
     |

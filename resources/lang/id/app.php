@@ -47,6 +47,7 @@ return [
     'min_chars' => 'Masukkan minimal 3 karakter untuk mencari.',
     'search_word_tip' => 'Tips: Gunakan kata lengkap — coba “superman” bukan “superm”',
     'no_results_hint' => 'OMDb mencari berdasarkan kata judul. Coba kata lengkap (mis. “superman”) atau kata kunci lain.',
+    'view_details' => 'Lihat Detail',
 
     // Detail Film
     'back' => 'Kembali',
@@ -55,7 +56,7 @@ return [
     'writer' => 'Penulis',
     'actors' => 'Pemeran',
     'plot' => 'Sinopsis',
-    'language' => 'Bahasa',
+    'film_language' => 'Bahasa',
     'country' => 'Negara',
     'awards' => 'Penghargaan',
     'released' => 'Tanggal Rilis',

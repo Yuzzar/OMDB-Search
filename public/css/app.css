@@ -221,6 +221,12 @@ html { scroll-behavior: smooth; }
     will-change: width, opacity;
 }
 
+/* Search icon – busy state (replaces hardcoded inline JS color) */
+.search-spinner-icon {
+    color: #e94560;
+    font-size: 13px;
+}
+
 /* ─────────────────────────────────────────────────
    DETAIL HERO – RESPONSIVE
 ───────────────────────────────────────────────── */
