@@ -160,7 +160,7 @@ Open browser at `http://localhost:8000`
 ## API Used
 
 - **OMDb API**: `http://www.omdbapi.com/`
-- API Key: `d51d815f`
+- API Key: `<your-omdb-api-key>` (set di file `.env` → `OMDB_API_KEY`)
 - Search endpoint: `?s={query}&page={page}&type={type}&y={year}&apikey={key}`
 - Detail endpoint: `?i={imdbId}&plot=full&apikey={key}`
 
@@ -168,28 +168,93 @@ Open browser at `http://localhost:8000`
 
 ## Deployment
 
-### Alibaba Cloud (Docker)
+### ☁️ Alibaba Cloud (Docker) — Live Production
 
-Aplikasi di-deploy menggunakan Docker di Alibaba Cloud ECS.
+Aplikasi di-deploy menggunakan Docker di **Alibaba Cloud ECS (Ubuntu 22.04)**.
+
+| Info | Detail |
+|---|---|
+| **Domain** | [http://yuzzarmalik.web.id](http://yuzzarmalik.web.id) |
+| **IP Server** | `47.250.161.154` |
+| **Cloud Provider** | Alibaba Cloud ECS — Malaysia (Kuala Lumpur) A |
+| **OS** | Ubuntu 22.04 64-bit |
+| **Stack** | Docker + Nginx + PHP 7.4-FPM + MySQL 5.7 |
+| **Container App** | `omdb-app` |
+| **Container DB** | `omdb-db` |
+| **Container Web** | `omdb-nginx` |
+
+### Langkah Deploy dari Awal
 
 ```bash
-# 1. Clone project ke server
-git clone <repo-url>
-cd <project-folder>
+# 1. Login ke server via SSH
+ssh root@47.250.161.154
 
-# 2. Copy dan isi konfigurasi environment
+# 2. Install kebutuhan server (jika belum)
+apt-get update && apt-get install -y git docker.io docker-compose
+systemctl enable docker && systemctl start docker
+
+# 3. Clone project ke server
+mkdir -p /var/www && cd /var/www
+git clone <repo-url> omdb-search
+cd omdb-search
+
+# 4. Buat file .env (PENTING: ikuti aturan konfigurasi Docker di bawah)
 cp .env.example .env
-# Edit .env: isi DB_HOST, DB_DATABASE, DB_USERNAME, DB_PASSWORD, OMDB_API_KEY, APP_URL
-
-# 3. Jalankan dengan Docker Compose
-docker-compose up -d --build
-
-# 4. Jalankan migrasi database
-docker-compose exec app php artisan key:generate
-docker-compose exec app php artisan migrate --force
+nano .env
 ```
 
-Akses aplikasi melalui IP atau domain server.
+**Konfigurasi `.env` wajib untuk Docker:**
+```env
+APP_URL=http://yuzzarmalik.web.id  # atau IP: http://47.250.161.154
+APP_ENV=production
+APP_DEBUG=false
+
+DB_HOST=db              # WAJIB 'db', bukan 127.0.0.1
+DB_DATABASE=laravel
+DB_USERNAME=laraveluser # WAJIB bukan 'root' — MySQL Docker tidak izinkan MYSQL_USER=root
+DB_PASSWORD=password
+```
+
+> ⚠️ **Catatan Penting:** Mengisi `DB_USERNAME=root` akan menyebabkan container database (`omdb-db`) crash terus-menerus (restart loop) karena MySQL Docker melarang penggunaan `root` sebagai nilai `MYSQL_USER`. Gunakan username lain seperti `laraveluser`.
+
+```bash
+# 5. Nyalakan Docker (build + run)
+docker-compose up -d --build
+
+# 6. Setup Laravel di dalam container
+docker exec omdb-app composer install --optimize-autoloader --no-dev
+docker exec omdb-app php artisan key:generate
+docker exec omdb-app php artisan migrate --force
+docker exec omdb-app php artisan storage:link
+docker exec omdb-app php artisan optimize:clear
+docker exec omdb-app php artisan config:cache
+docker exec omdb-app php artisan view:cache
+
+# 7. Verifikasi — semua STATUS harus "Up"
+docker ps
+```
+
+### Update / Re-Deploy Kode Baru
+
+```bash
+# Jika menggunakan git
+cd /var/www/omdb-search
+git pull
+docker-compose up -d --build
+docker exec omdb-app php artisan migrate --force
+docker exec omdb-app php artisan optimize:clear
+```
+
+### Troubleshooting Cepat
+
+```bash
+# Lihat log jika ada error
+docker logs omdb-app
+docker logs omdb-db
+
+# Restart semua container
+docker-compose restart
+```
 
 ---
 
