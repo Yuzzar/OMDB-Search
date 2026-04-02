@@ -1,4 +1,4 @@
-FROM php:7.4-fpm
+FROM php:8.2-cli
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -9,29 +9,30 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libzip-dev \
     zip \
-    unzip
-
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Install PHP extensions required for Laravel 5.8
-RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath xml zip
-RUN docker-php-ext-install gd
+    unzip \
+    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath xml zip \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set working directory
-WORKDIR /var/www
+WORKDIR /app
 
-# Copy existing application directory contents
-COPY . /var/www
+# Copy composer files first for caching
+COPY composer.json composer.lock* ./
 
-# Set permissions for Laravel
-RUN chown -R www-data:www-data /var/www \
-    && chmod -R 775 /var/www/storage \
-    && chmod -R 775 /var/www/bootstrap/cache
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-# Expose port 9000 and start php-fpm server
-EXPOSE 9000
-CMD ["php-fpm"]
+# Copy rest of the app
+COPY . .
+
+# Run post-install scripts
+RUN composer dump-autoload --optimize
+
+# Set permissions
+RUN chmod -R 775 storage bootstrap/cache
+
+EXPOSE $PORT
+
+CMD php artisan config:cache && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT
