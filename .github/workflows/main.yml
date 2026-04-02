@@ -18,4 +18,4 @@ jobs:
           script: |
             cd /var/www/omdb-search
             git pull origin main
-            sudo docker-compose restart omdb-app omdb-nginx
+            docker-compose restart omdb-app omdb-nginx
