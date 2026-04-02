@@ -1,15 +1,14 @@
-name: Deploy to Alibaba Cloud
+name: Deploy OMDB Search
 
 on:
   push:
-    branches:
-      - main  # Robot akan jalan otomatis kalau ada push ke branch main
+    branches: [ main ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Executing SSH commands to deploy
+      - name: SSH and Deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -17,12 +16,16 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /var/www/omdb-search
-            # Ambil kode terbaru
-            git fetch --all
+            
+            # 1. Sinkronisasi kode dengan cara bersih
+            git fetch origin main
             git reset --hard origin/main
-            git config --global --add safe.directory /var/www/omdb-search
-
-            # Kita gunakan cara 'Restart Total' agar tidak kena bug 'ContainerConfig'
-            # Kita panggil docker compose (Space) yang sudah kita instal tadi
-            docker compose down || true
-            docker compose up -d --force-recreate
+            
+            # 2. Deploy menggunakan Docker Compose V2
+            # --build: Otomatis build ulang kalau ada perubahan Dockerfile
+            # --remove-orphans: Hapus container lama yang sudah tidak dipakai
+            docker compose up -d --build --remove-orphans
+            
+            # 3. Laravel Optimization (Opsional tapi Pro)
+            docker exec omdb-app php artisan config:cache
+            docker exec omdb-app php artisan route:cache
