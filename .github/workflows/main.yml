@@ -20,9 +20,10 @@ jobs:
             git fetch --all
             git reset --hard origin/main
             git config --global --add safe.directory /var/www/omdb-search
-            
-            # Hapus semua container lama agar tidak kena bug 'ContainerConfig'
-            docker rm -f omdb-app omdb-nginx omdb-db || true
+
+            # Hapus semua container yang berhubungan dengan project ini secara bersih
+            # Menggunakan perintah V2
+            docker compose down --remove-orphans || true
             
             # Jalankan ulang
-            docker-compose up -d
+            docker compose up -d
