@@ -17,13 +17,12 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /var/www/omdb-search
+            # Ambil kode terbaru
             git fetch --all
             git reset --hard origin/main
             git config --global --add safe.directory /var/www/omdb-search
 
-            # Hapus semua container yang berhubungan dengan project ini secara bersih
-            # Menggunakan perintah V2
-            docker compose down --remove-orphans || true
-            
-            # Jalankan ulang
-            docker compose up -d
+            # Kita gunakan cara 'Restart Total' agar tidak kena bug 'ContainerConfig'
+            # Kita panggil docker compose (Space) yang sudah kita instal tadi
+            docker compose down || true
+            docker compose up -d --force-recreate
