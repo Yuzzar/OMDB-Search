@@ -17,14 +17,12 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /var/www/omdb-search
-            # 1. Tarik kode terbaru dari GitHub
             git fetch --all
             git reset --hard origin/main
             git config --global --add safe.directory /var/www/omdb-search
             
-            # 2. Hapus paksa container yang sering bikin bug 'ContainerConfig'
-            # Kita hapus manual supaya docker-compose tidak bingung saat 'recreating'
-            docker rm -f omdb-nginx || true
+            # Hapus semua container lama agar tidak kena bug 'ContainerConfig'
+            docker rm -f omdb-app omdb-nginx omdb-db || true
             
-            # 3. Nyalakan ulang stack-nya
+            # Jalankan ulang
             docker-compose up -d
