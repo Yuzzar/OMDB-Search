@@ -17,5 +17,13 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /var/www/omdb-search
-            git pull origin main
-            docker-compose restart omdb-app omdb-nginx
+            # 1. Paksa Git untuk membuang editan lokal dan mengikuti GitHub 100%
+            git fetch --all
+            git reset --hard origin/main
+            
+            # 2. Pastikan Git merasa folder ini aman
+            git config --global --add safe.directory /var/www/omdb-search
+            
+            # 3. Nyalakan ulang semua kontainer dengan konfigurasi terbaru
+            # Kita gunakan 'up -d' agar kalau ada perubahan config langsung diterapkan
+            docker-compose up -d
